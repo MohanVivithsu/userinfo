@@ -1,0 +1,24 @@
+spring:
+  datasource:
+           url: jdbc:mysql://localhost:3306/userinfo_project?createDatabaseIfNotExist=true&useSSL=true 
+           password: root
+           username: root
+           driver-class-name: com.mysql.cj.jdbc.Driver
+
+  
+           
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL57Dialect   
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update       
+      
+server:
+  port: 9091 
+  
+logging: 
+   level:
+     com.project.userinfo: DEBUG
+   pattern:
+         console: "%d{yyyy-MM-dd HH:mm:ss} {%thread} %-5level %logger{36} - %msg%n"   
+   
