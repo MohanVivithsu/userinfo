@@ -2,16 +2,40 @@ version: 0.0
 os: linux
 
 files:
-  - source: imagedefinitions.json
-    destination: /home/ec2-user/app   # safer destination
+  # Copy everything from your deployment bundle into /home/ec2-user/app
+  - source: /
+    destination: /home/ec2-user/app
 
 hooks:
   BeforeInstall:
-    - location: scripts/before_install.sh
+    - runas: root
       timeout: 300
-      runas: root
+      location: |
+        #!/bin/bash
+        echo "Cleaning old app files..."
+        rm -rf /home/ec2-user/app/*
 
   AfterInstall:
-    - location: scripts/deploy.sh
+    - runas: root
       timeout: 300
-      runas: root
+      location: |
+        #!/bin/bash
+        echo "Setting permissions..."
+        chown ec2-user:ec2-user /home/ec2-user/app/*
+
+  ApplicationStop:
+    - runas: root
+      timeout: 300
+      location: |
+        #!/bin/bash
+        echo "Stopping running app..."
+        pkill -f 'java -jar userinfo-0.0.1-SNAPSHOT.jar' || true
+
+  ApplicationStart:
+    - runas: root
+      timeout: 300
+      location: |
+        #!/bin/bash
+        echo "Starting app..."
+        cd /home/ec2-user/app
+        nohup java -jar userinfo-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
